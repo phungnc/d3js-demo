@@ -1,0 +1,102 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<input type="text" id="r1" value="100"></input>
+	<input type="text" id="r2" value="150"></input>
+	<button id="run">Run</button>
+	<div class="chart"></div>
+	<script src="d3.v3.min.js"  charset="utf-8"></script>
+
+	<script type="text/javascript">
+		var width  = 640;
+		var height = 640;
+
+		var r  	   = parseInt(document.getElementById("r1").value);
+		var r2     = parseInt(document.getElementById("r2").value);
+
+		var x1	   = 300;
+		var y1	   = 400;
+
+		var x2	   = 300;
+		var y2	   = y1 - r;
+
+		var x3	   = 300;
+		var y3	   = y1 - (r+r2);
+
+		var alpha  = 0;
+		var svg = d3.select('.chart').append("svg").attr("width", width).attr("height", height);
+		var circle = svg.append('circle').attr("r", r).attr("cx", x1).attr("cy", y1).attr("fill", "none").attr("stroke", "#000");
+		var yD   = svg.append('line')
+			.attr("x1", 300)
+			.attr("y1", 0)
+			.attr("x2", 300)
+			.attr("y2", y1+r)
+			.attr("stroke", "#000")
+			.attr("stroke-width", 1);
+		var piston = svg.append('rect')
+			.attr("height", 20)
+			.attr("width", 10)
+			.attr("x", x1-5)
+			.attr("y", y3-10)
+			.attr("fill", "red")
+			.attr("stroke", "red");
+
+		var line   = svg.append('line')
+			.attr("x1", x1)
+			.attr("y1", y1)
+			.attr("x2", x2)
+			.attr("y2", y2)
+			.attr("stroke", "#000")
+			.attr("stroke-width", 5);
+
+
+		var line2   = svg.append('line')
+			.attr("x1", x3)
+			.attr("y1", y3)
+			.attr("x2", x2)
+			.attr("y2", y2)
+			.attr("stroke", "#000")
+			.attr("stroke-width", 5);
+
+		var point = svg.append('circle')
+			.attr("r", 5)
+			.attr("cx", x2)
+			.attr("cy", y2)
+			.attr("fill", "red")
+			.attr("stroke", "#000");
+
+
+		function rolling() {
+			alpha = alpha + 1;
+			deltaX = r*Math.sin(alpha*Math.PI/180);
+			deltaY = r*Math.cos(alpha*Math.PI/180);
+			// 
+			x2 = x1 + deltaX;
+			y2 = y1 - deltaY;
+			//
+			y3 = y2 - Math.sqrt(r2*r2-deltaX*deltaX);
+			//
+			line.attr("x2", x2).attr("y2", y2);
+			line2.attr("x1",x1).attr("y1",y3);
+			line2.attr("x2",x2).attr("y2",y2);
+			point.attr("cx", x2).attr("cy", y2);
+			piston.attr("y", y3-10);
+
+			if(alpha > 360) alpha = 0;
+		};
+		document.getElementById("run").onclick = function(){
+			clearInterval(intervalID);
+			r  	   = parseInt(document.getElementById("r1").value);
+			r2     = parseInt(document.getElementById("r2").value);
+			y2	   = y1 - r;
+			y3	   = y1 - r2;
+			circle.attr("r",r);
+			var intervalID = setInterval(rolling,10);
+		};
+
+	</script>
+
+</body>
+</html>
